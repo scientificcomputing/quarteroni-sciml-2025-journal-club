@@ -1,0 +1,37 @@
+name: Build documentation
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_call:
+  workflow_dispatch:
+
+
+jobs:
+
+  build:
+    runs-on: ubuntu-22.04
+    env:
+      PUBLISH_DIR: ./_output
+
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Install jupyterlite dependencies
+        run: python3 -m pip install -r requirements-lite.txt
+
+      - name: Build site for jupyterlite
+        run: |
+          jupyter lite build --contents notebooks --output-dir ./_output
+
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: ${{ env.PUBLISH_DIR }}
